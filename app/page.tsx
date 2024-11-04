@@ -1,12 +1,7 @@
 import { revalidatePath } from "next/cache";
-import { query } from "./lib/db";
-import { getTasks } from "./utils/functions";
-
-interface Task {
-  text: string;
-  completed: boolean;
-  created_at: Date;
-}
+import { Task } from "./types/tasks";
+import RemoveButton from "./componentns/RemoveButton";
+import { addTask, getTasks } from "./actions/taskActions";
 
 export default async function MainPage() {
   const tasks: Task[] = await getTasks();
@@ -16,12 +11,9 @@ export default async function MainPage() {
     const newTask = formData.get("task") as string;
 
     if (newTask) {
-      await query("INSERT INTO tasks (text, completed) VALUES ($1, $2)", [
-        newTask,
-        false,
-      ]);
+      await addTask(newTask);
+      revalidatePath("/");
     }
-    revalidatePath("/");
   }
 
   return (
@@ -55,9 +47,9 @@ export default async function MainPage() {
         <section aria-label="Task List">
           <h2 className="text-xl font-semibold mb-3">Tasks</h2>
           <ul className="space-y-2">
-            {tasks.map((task: Task, index: number) => (
+            {tasks.map((task: Task) => (
               <li
-                key={index}
+                key={task.id}
                 className="flex items-center justify-between p-2 bg-white rounded shadow"
               >
                 <span
@@ -68,12 +60,7 @@ export default async function MainPage() {
                 >
                   {task.text}
                 </span>
-                <span
-                  // onClick={() => toggleTaskCompletion(index)}
-                  className={`cursor-pointer ${
-                    task.completed ? "line-through text-gray-400" : ""
-                  }`}
-                >
+                <span>
                   {new Date(task.created_at).toLocaleString("en-uk", {
                     year: "numeric",
                     month: "short",
@@ -83,13 +70,8 @@ export default async function MainPage() {
                     second: "2-digit",
                   })}
                 </span>
-                <button
-                  // onClick={() => handleDeleteTask(index)}
-                  className="text-red-500 hover:text-red-700 focus:outline-none"
-                  aria-label={`Delete task: ${task.text}`}
-                >
-                  &times;
-                </button>
+
+                <RemoveButton task={task} />
               </li>
             ))}
           </ul>
