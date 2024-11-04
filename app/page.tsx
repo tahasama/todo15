@@ -1,36 +1,29 @@
-"use client";
-
-import { useState } from "react";
+import { query } from "./lib/db";
 
 interface Task {
   text: string;
   completed: boolean;
+  created_at: Date;
 }
 
-export default function MainPage() {
-  const [task, setTask] = useState<string>("");
-  const [tasks, setTasks] = useState<Task[]>([]);
+export async function getTasks(): Promise<Task[]> {
+  const result = await query("SELECT * FROM tasks ORDER BY created_at DESC");
+  return result.rows;
+}
 
-  const handleAddTask = () => {
-    if (task.trim()) {
-      setTasks([...tasks, { text: task, completed: false }]);
-      setTask("");
+export default async function MainPage() {
+  const tasks: Task[] = await getTasks();
+  async function handleAddTask(formData: FormData): Promise<void> {
+    "use server";
+    const newTask = formData.get("task") as string;
+
+    if (newTask) {
+      await query("INSERT INTO tasks (text, completed) VALUES ($1, $2)", [
+        newTask,
+        false,
+      ]);
     }
-  };
-
-  const toggleTaskCompletion = (index: number) => {
-    setTasks((prevTasks: Task[]) =>
-      prevTasks.map((t: Task, i: number) =>
-        i === index ? { ...t, completed: !t.completed } : t
-      )
-    );
-  };
-
-  const handleDeleteTask = (index: number) => {
-    setTasks((prevTasks: Task[]) =>
-      prevTasks.filter((_: Task, i: number) => i !== index)
-    );
-  };
+  }
 
   return (
     <div className="min-h-screen flex flex-col items-center bg-gray-100 text-gray-800">
@@ -46,22 +39,18 @@ export default function MainPage() {
           >
             Add a new task
           </label>
-          <div className="flex">
+          <form action={handleAddTask} className="flex">
             <input
-              id="taskInput"
+              id="task"
+              name="task"
               type="text"
-              value={task}
-              onChange={(e) => setTask(e.target.value)}
               placeholder="Enter a task..."
               className="w-full p-2 border border-gray-300 rounded-l focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
-            <button
-              onClick={handleAddTask}
-              className="bg-blue-600 text-white px-4 rounded-r hover:bg-blue-700 focus:outline-none"
-            >
+            <button className="bg-blue-600 text-white px-4 rounded-r hover:bg-blue-700 focus:outline-none">
               Add
             </button>
-          </div>
+          </form>
         </section>
 
         <section aria-label="Task List">
@@ -73,15 +62,23 @@ export default function MainPage() {
                 className="flex items-center justify-between p-2 bg-white rounded shadow"
               >
                 <span
-                  onClick={() => toggleTaskCompletion(index)}
+                  // onClick={() => toggleTaskCompletion(index)}
                   className={`cursor-pointer ${
                     task.completed ? "line-through text-gray-400" : ""
                   }`}
                 >
                   {task.text}
                 </span>
+                <span
+                  // onClick={() => toggleTaskCompletion(index)}
+                  className={`cursor-pointer ${
+                    task.completed ? "line-through text-gray-400" : ""
+                  }`}
+                >
+                  {task.created_at.toDateString()}
+                </span>
                 <button
-                  onClick={() => handleDeleteTask(index)}
+                  // onClick={() => handleDeleteTask(index)}
                   className="text-red-500 hover:text-red-700 focus:outline-none"
                   aria-label={`Delete task: ${task.text}`}
                 >
