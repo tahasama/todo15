@@ -18,17 +18,17 @@ export default function MainPage() {
     }
   };
 
-  const toggleTaskCompletion = (index: any) => {
-    setTasks((prevTasks: any) =>
-      prevTasks.map((t: any, i: any) =>
+  const toggleTaskCompletion = (index: number) => {
+    setTasks((prevTasks: Task[]) =>
+      prevTasks.map((t: Task, i: number) =>
         i === index ? { ...t, completed: !t.completed } : t
       )
     );
   };
 
-  const handleDeleteTask = (index: any) => {
-    setTasks((prevTasks: any) =>
-      prevTasks.filter((_: any, i: any) => i !== index)
+  const handleDeleteTask = (index: number) => {
+    setTasks((prevTasks: Task[]) =>
+      prevTasks.filter((_: Task, i: number) => i !== index)
     );
   };
 
@@ -67,7 +67,7 @@ export default function MainPage() {
         <section aria-label="Task List">
           <h2 className="text-xl font-semibold mb-3">Tasks</h2>
           <ul className="space-y-2">
-            {tasks.map((task: any, index: any) => (
+            {tasks.map((task: Task, index: number) => (
               <li
                 key={index}
                 className="flex items-center justify-between p-2 bg-white rounded shadow"
