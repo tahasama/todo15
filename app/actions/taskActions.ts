@@ -14,9 +14,18 @@ export async function addTask(newTask:string) {
         newTask,
         false,
       ]);
+      revalidatePath("/");
 }
 
-export  async function handleRemoveTask(taskId: number): Promise<void> {
+export async function handleRemoveTask(taskId: number): Promise<void> {
     await query("DELETE FROM tasks WHERE id = $1", [taskId]);
     revalidatePath("/");
   }
+
+export async function updateTask({updatedText, taskId}: {updatedText:string, taskId:number}) {
+    await query("UPDATE tasks SET text = $1 WHERE id = $2", [
+        updatedText,
+        taskId,
+      ]);
+    revalidatePath("/");
+}
