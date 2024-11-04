@@ -40,7 +40,7 @@ export default async function MainPage() {
           </label>
           <form action={handleAddTask} className="flex">
             <input
-              id="task"
+              id="taskInput"
               name="task"
               type="text"
               placeholder="Enter a task..."
@@ -74,7 +74,14 @@ export default async function MainPage() {
                     task.completed ? "line-through text-gray-400" : ""
                   }`}
                 >
-                  {task.created_at.toDateString()}
+                  {new Date(task.created_at).toLocaleString("en-uk", {
+                    year: "numeric",
+                    month: "short",
+                    day: "numeric",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    second: "2-digit",
+                  })}
                 </span>
                 <button
                   // onClick={() => handleDeleteTask(index)}
