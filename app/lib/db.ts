@@ -18,7 +18,7 @@ export async function testDatabaseConnection() {
 // Call this function to check the connection on server startup or in a specific route
 testDatabaseConnection();
 
-
+// initialise first tables
 // async function createTasksTable() {
 //   await pool.query(`
 //     CREATE TABLE IF NOT EXISTS tasks (
@@ -32,4 +32,4 @@ testDatabaseConnection();
 
 // createTasksTable()
 
-export const query = (text:string, params?:any[]) => pool.query(text, params);
+export const query = (text:string, params?:(string | number | boolean | null)[]) => pool.query(text, params);
