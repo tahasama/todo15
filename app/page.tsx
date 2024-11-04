@@ -1,3 +1,4 @@
+import { revalidatePath } from "next/cache";
 import { query } from "./lib/db";
 import { getTasks } from "./utils/functions";
 
@@ -9,6 +10,7 @@ interface Task {
 
 export default async function MainPage() {
   const tasks: Task[] = await getTasks();
+
   async function handleAddTask(formData: FormData): Promise<void> {
     "use server";
     const newTask = formData.get("task") as string;
@@ -19,6 +21,7 @@ export default async function MainPage() {
         false,
       ]);
     }
+    revalidatePath("/");
   }
 
   return (
