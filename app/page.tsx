@@ -2,9 +2,14 @@
 
 import { useState } from "react";
 
+interface Task {
+  text: string;
+  completed: boolean;
+}
+
 export default function MainPage() {
-  const [task, setTask] = useState<any>("");
-  const [tasks, setTasks] = useState<any>([]);
+  const [task, setTask] = useState<string>("");
+  const [tasks, setTasks] = useState<Task[]>([]);
 
   const handleAddTask = () => {
     if (task.trim()) {
