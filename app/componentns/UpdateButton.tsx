@@ -1,29 +1,22 @@
 "use client";
-import React, { useState } from "react";
+import React, { useActionState, useEffect, useState } from "react";
 import { Task } from "../types/tasks";
 import { updateTask } from "../actions/taskActions";
 
 const UpdateButton = ({ task }: { task: Task }) => {
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const [draft, setDraft] = useState<string>(task.text);
-  const [errorMessage, setErrorMessage] = useState<string>("");
 
-  // Server action to update a task
-  const handleUpdateTask = async (formData: FormData): Promise<void> => {
-    const updatedText = formData.get("draft") as string;
-    if (updatedText.trim()) {
-      const response = await updateTask({ taskId: task.id, updatedText });
-      console.log("🚀 ~ handleUpdateTask ~ response:", response);
-      if (response.message) {
-        // If there's an error message, set it in the state
-        setErrorMessage(response.message);
-      } else {
-        // Clear error message and close the modal on success
-        setErrorMessage("");
-        setIsEditing(false);
-      }
+  const [state, handleUpdateTask, isPending] = useActionState(updateTask, {
+    success: false,
+    message: "",
+  });
+
+  useEffect(() => {
+    if (state.success) {
+      setIsEditing(!isEditing); // Reset draft to the original task text
     }
-  };
+  }, [state.success, task.text]);
 
   return (
     <div className="relative">
@@ -33,6 +26,7 @@ const UpdateButton = ({ task }: { task: Task }) => {
             action={handleUpdateTask}
             className="flex items-center space-x-2 w-full max-w-sm bg-white p-4 rounded shadow-lg"
           >
+            <input type="hidden" name="taskId" value={task.id} />
             <input
               type="text"
               name="draft"
@@ -47,12 +41,12 @@ const UpdateButton = ({ task }: { task: Task }) => {
             <button
               type="submit"
               className={`${
-                draft !== task.text
+                draft !== task.text || !isPending
                   ? "bg-green-400 hover:bg-green-500"
                   : "bg-slate-200"
               } text-white p-1.5 rounded  focus:outline-none focus:ring-2 focus:ring-blue-500`}
               //   className="text-blue-500 hover:bg-slate-300 text-lg rounded-md p-1 focus:outline-none focus:ring-2 focus:ring-blue-400"
-              disabled={draft === task.text ? true : false}
+              disabled={draft === task.text || isPending ? true : false}
             >
               ✔️
             </button>
@@ -76,6 +70,9 @@ const UpdateButton = ({ task }: { task: Task }) => {
           🖊️
         </button>
       )}
+      <h2 className="text-start absolute -left-80 -bottom-5 text-md font-light text-red-200 pt-2">
+        {state?.message}
+      </h2>
     </div>
   );
 };

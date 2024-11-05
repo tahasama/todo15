@@ -42,25 +42,27 @@ export async function removeTask(taskId: number) {
   return { message: "" };
 }
 
-export async function updateTask({
-  updatedText,
-  taskId,
-}: {
-  updatedText: string;
-  taskId: number;
-}) {
+export async function updateTask(  prevState: { success: boolean, message:string } | undefined,
+  formData: FormData) {
+
+  const taskId = formData.get("taskId") as string;
+  console.log("🚀 ~ taskId:", taskId)
+  const updatedText = formData.get("draft") as string;
+  console.log("🚀 ~ updatedText:", updatedText)
+
   const res = await query("UPDATE tasks SET text = $1 WHERE id = $2", [
     updatedText,
     taskId,
   ]);
   if (res.rowCount === 0) {
     return {
+      success: false,
       message: "Failed to update your task. Please refresh or try again later.",
-      close: false,taskId:0
+
     };
   }
   revalidatePath("/");
-  return { message: "", close: true ,taskId:0}; // Close modal on success
+  return { success: true,message:'' }; // Close modal on success
 }
 
 
