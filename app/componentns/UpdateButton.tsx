@@ -16,7 +16,7 @@ const UpdateButton = ({ task }: { task: Task }) => {
     if (state.success) {
       setIsEditing(!isEditing); // Reset draft to the original task text
     }
-  }, [state.success, isEditing]);
+  }, [state.success]);
 
   return (
     <div className="relative">

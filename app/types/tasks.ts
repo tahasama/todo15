@@ -10,3 +10,8 @@ export interface GetTaskByIdResponse {
     task?: Task; // Optional task property
     message?: string; // Message property
   }
+
+export interface GetTasks {
+    tasks: Task[];
+    message: string;
+  };
