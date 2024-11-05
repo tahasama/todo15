@@ -1,21 +1,11 @@
-import { revalidatePath } from "next/cache";
 import { Task } from "./types/tasks";
 import RemoveButton from "./componentns/RemoveButton";
-import { addTask, getTasks } from "./actions/taskActions";
+import { getTasks } from "./actions/taskActions";
 import UpdateButton from "./componentns/UpdateButton";
-import { query } from "./lib/db";
+import AddtaskForm from "./componentns/AddtaskForm";
 
 export default async function MainPage() {
   const tasks: Task[] = await getTasks();
-
-  const handleAddTask = async (formData: FormData): Promise<void> => {
-    "use server";
-    const newTask = formData.get("task") as string;
-
-    if (newTask) {
-      await addTask(newTask);
-    }
-  };
 
   return (
     <div className="min-h-screen flex flex-col items-center bg-gray-100 text-gray-800">
@@ -25,26 +15,8 @@ export default async function MainPage() {
 
       <main className="flex-grow w-full max-w-md mx-auto p-4 space-y-6">
         {/* Add Task Section */}
-        <section className="mb-4">
-          <label
-            htmlFor="taskInput"
-            className="block text-lg font-semibold mb-2 text-gray-700"
-          >
-            Add a new task
-          </label>
-          <form action={handleAddTask} className="flex">
-            <input
-              id="taskInput"
-              name="task"
-              type="text"
-              placeholder="Enter a task..."
-              className="w-full p-2 border border-gray-300 rounded-l focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-            <button className="bg-blue-600 text-white px-4 rounded-r hover:bg-blue-700 focus:outline-none">
-              Add
-            </button>
-          </form>
-        </section>
+
+        <AddtaskForm />
 
         {/* Task List Section */}
         <section aria-label="Task List">

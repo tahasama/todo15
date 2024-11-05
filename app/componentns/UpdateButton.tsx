@@ -4,14 +4,24 @@ import { Task } from "../types/tasks";
 import { updateTask } from "../actions/taskActions";
 
 const UpdateButton = ({ task }: { task: Task }) => {
-  const [draft, setDraft] = useState<string>(task.text);
   const [isEditing, setIsEditing] = useState<boolean>(false);
+  const [draft, setDraft] = useState<string>(task.text);
+  const [errorMessage, setErrorMessage] = useState<string>("");
 
   // Server action to update a task
-  const handleUpdateTask = async (): Promise<void> => {
-    if (draft.trim()) {
-      await updateTask({ taskId: task.id, updatedText: draft });
-      setIsEditing(!isEditing);
+  const handleUpdateTask = async (formData: FormData): Promise<void> => {
+    const updatedText = formData.get("draft") as string;
+    if (updatedText.trim()) {
+      const response = await updateTask({ taskId: task.id, updatedText });
+      console.log("🚀 ~ handleUpdateTask ~ response:", response);
+      if (response.message) {
+        // If there's an error message, set it in the state
+        setErrorMessage(response.message);
+      } else {
+        // Clear error message and close the modal on success
+        setErrorMessage("");
+        setIsEditing(false);
+      }
     }
   };
 
@@ -25,25 +35,33 @@ const UpdateButton = ({ task }: { task: Task }) => {
           >
             <input
               type="text"
-              value={draft}
-              onChange={(e) => setDraft(e.target.value)}
+              name="draft"
+              defaultValue={task.text}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                setDraft(e.target.value)
+              }
               className="flex-grow border border-gray-300 rounded-l p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
               aria-label="Edit task text"
               style={{ minWidth: "200px" }}
             />
             <button
-              type="button"
-              className="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              onClick={handleUpdateTask}
+              type="submit"
+              className={`${
+                draft !== task.text
+                  ? "bg-green-400 hover:bg-green-500"
+                  : "bg-slate-200"
+              } text-white p-1.5 rounded  focus:outline-none focus:ring-2 focus:ring-blue-500`}
+              //   className="text-blue-500 hover:bg-slate-300 text-lg rounded-md p-1 focus:outline-none focus:ring-2 focus:ring-blue-400"
+              disabled={draft === task.text ? true : false}
             >
-              &#10004;
+              ✔️
             </button>
             <button
               type="button"
-              className="text-red-500 text-3xl hover:text-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-400"
+              className="text-red-500 text-md hover:text-red-700 focus:outline-none hover:bg-slate-300 p-1.5 rounded-md"
               onClick={() => setIsEditing(false)}
             >
-              &times;
+              ❌
             </button>
           </form>
         </div>
@@ -53,7 +71,7 @@ const UpdateButton = ({ task }: { task: Task }) => {
         <button
           type="button"
           onClick={() => setIsEditing(true)}
-          className="text-blue-500 hover:bg-slate-300 rounded-md p-1 focus:outline-none focus:ring-2 focus:ring-blue-400"
+          className="text-blue-500 hover:bg-slate-300 text-lg rounded-md p-1 focus:outline-none focus:ring-2 focus:ring-blue-400"
         >
           🖊️
         </button>
