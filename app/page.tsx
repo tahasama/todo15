@@ -3,6 +3,7 @@ import RemoveButton from "./componentns/RemoveButton";
 import { getTasks } from "./actions/taskActions";
 import UpdateButton from "./componentns/UpdateButton";
 import AddtaskForm from "./componentns/AddtaskForm";
+import Link from "next/link";
 
 export default async function MainPage() {
   const tasks: Task[] = await getTasks();
@@ -27,7 +28,10 @@ export default async function MainPage() {
                 key={task.id}
                 className="flex flex-col md:flex-row items-center justify-between p-4 bg-white rounded-lg shadow-sm border border-gray-200 space-y-3 md:space-y-0"
               >
-                <div className="flex-grow text-gray-700">
+                <Link
+                  href={`/${task.id}`}
+                  className="flex-grow text-gray-700 hover:bg-slate-200 rounded-md p-2"
+                >
                   <span
                     className={`block cursor-pointer ${
                       task.completed ? "line-through text-gray-400" : ""
@@ -45,7 +49,7 @@ export default async function MainPage() {
                       second: "2-digit",
                     })}
                   </span>
-                </div>
+                </Link>
                 <div className="flex space-x-2">
                   <RemoveButton task={task} />
                   <UpdateButton task={task} />

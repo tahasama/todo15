@@ -4,3 +4,9 @@ export interface Task {
     completed: boolean;
     created_at: Date;
   }
+
+
+export interface GetTaskByIdResponse {
+    task?: Task; // Optional task property
+    message?: string; // Message property
+  }

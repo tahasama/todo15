@@ -66,3 +66,18 @@ export async function updateTask(  prevState: { success: boolean, message:string
 }
 
 
+export const getTaskById = async (taskId: string) => {
+console.log("🚀 ~ getTaskById ~ taskId:", taskId)
+
+    const res = await query('SELECT * FROM tasks WHERE id = $1', [taskId]);
+
+    // Check if the task was found
+    if (res.rowCount === 0) {
+      return {message:'No task has been found!'}; // No task found
+    }
+
+    const task: Task = res.rows[0]; // Assuming the first row is the task we want
+    return {task,message:''};
+
+};
+
