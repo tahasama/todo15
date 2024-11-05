@@ -13,15 +13,17 @@ const UpdateButton = ({ task }: { task: Task }) => {
   });
 
   useEffect(() => {
-    if (state.success) {
+    if (state?.success) {
       setIsEditing(!isEditing); // Reset draft to the original task text
+      //   setDraft(task.text);
     }
-  }, [state.success]);
+  }, [state?.success, task.text]);
 
   return (
     <div className="relative">
       {isEditing && (
         <div className="fixed inset-0 flex items-center justify-center bg-slate-500 bg-opacity-50 backdrop-blur-[2px] z-50 transition duration-200 ease-out">
+          <h2 className="text-start  text-md font-light text-red-600 pt-2"></h2>
           <form
             action={handleUpdateTask}
             className="flex items-center space-x-2 w-full max-w-sm bg-white p-4 rounded shadow-lg"
@@ -30,6 +32,7 @@ const UpdateButton = ({ task }: { task: Task }) => {
             <input
               type="text"
               name="draft"
+              placeholder="add a task"
               defaultValue={task.text}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                 setDraft(e.target.value)
@@ -46,7 +49,9 @@ const UpdateButton = ({ task }: { task: Task }) => {
                   : "bg-slate-200"
               } text-white p-1.5 rounded  focus:outline-none focus:ring-2 focus:ring-blue-500`}
               //   className="text-blue-500 hover:bg-slate-300 text-lg rounded-md p-1 focus:outline-none focus:ring-2 focus:ring-blue-400"
-              disabled={draft === task.text || isPending ? true : false}
+              disabled={
+                draft === task.text || isPending || draft === "" ? true : false
+              }
             >
               ✔️
             </button>
@@ -70,9 +75,6 @@ const UpdateButton = ({ task }: { task: Task }) => {
           🖊️
         </button>
       )}
-      <h2 className="text-start absolute -left-80 -bottom-5 text-md font-light text-red-200 pt-2">
-        {state?.message}
-      </h2>
     </div>
   );
 };

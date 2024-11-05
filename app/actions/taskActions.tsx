@@ -61,19 +61,22 @@ export async function updateTask(
   console.log("🚀 ~ taskId:", taskId);
   const updatedText = formData.get("draft") as string;
   console.log("🚀 ~ updatedText:", updatedText);
-
-  const res = await query("UPDATE tasks SET text = $1 WHERE id = $2", [
-    updatedText,
-    taskId,
-  ]);
-  if (res.rowCount === 0) {
-    return {
-      success: false,
-      message: "Failed to update your task. Please refresh or try again later.",
-    };
+  if (updatedText.trim()) {
+    const res = await query("UPDATE tasks SET text = $1 WHERE id = $2", [
+      updatedText,
+      taskId,
+    ]);
+    if (res.rowCount === 0) {
+      return {
+        success: false,
+        message:
+          "Failed to update your task. Please refresh or try again later.",
+      };
+    }
+    revalidatePath("/");
+    return { success: true, message: "" }; // Close modal on success
   }
-  revalidatePath("/");
-  return { success: true, message: "" }; // Close modal on success
+  return { success: false, message: "please add a task" };
 }
 
 export const getTaskById = async (taskId: string) => {
