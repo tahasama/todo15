@@ -4,12 +4,9 @@ import { Task } from "../types/tasks";
 import { removeTask } from "../actions/taskActions";
 
 const RemoveButton = ({ task }: { task: Task }) => {
-  const [state, handleRemoveTask, ispending] = useActionState(
-    () => removeTask(task.id),
-    {
-      message: "",
-    }
-  );
+  const [state, handleRemoveTask, ispending] = useActionState(removeTask, {
+    message: "",
+  });
 
   return (
     <div>

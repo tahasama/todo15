@@ -42,7 +42,12 @@ export const addTask = async (
   }
 };
 
-export async function removeTask(taskId: number) {
+export async function removeTask(
+  prevState: { message: string } | undefined,
+  formData: FormData
+) {
+  const taskId = Number(formData.get("id"));
+
   const res = await query("DELETE FROM tasks WHERE id = $1", [taskId]);
   if (res.rowCount === 0) {
     return {
