@@ -1,6 +1,6 @@
 import Link from "next/link";
 import React from "react";
-import { GetTasks, Task } from "../types/tasks";
+import { GetTasks } from "../types/tasks";
 import RemoveButton from "./RemoveButton";
 import UpdateButton from "./UpdateButton";
 import { getTasks } from "../actions/taskActions";

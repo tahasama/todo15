@@ -58,9 +58,7 @@ export async function updateTask(
   formData: FormData
 ) {
   const taskId = formData.get("taskId") as string;
-  console.log("🚀 ~ taskId:", taskId);
   const updatedText = formData.get("draft") as string;
-  console.log("🚀 ~ updatedText:", updatedText);
   if (updatedText.trim()) {
     const res = await query("UPDATE tasks SET text = $1 WHERE id = $2", [
       updatedText,
@@ -80,8 +78,6 @@ export async function updateTask(
 }
 
 export const getTaskById = async (taskId: string) => {
-  console.log("🚀 ~ getTaskById ~ taskId:", taskId);
-
   const res = await query("SELECT * FROM tasks WHERE id = $1", [taskId]);
 
   // Check if the task was found

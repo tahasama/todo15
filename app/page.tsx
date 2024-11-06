@@ -1,11 +1,5 @@
-import { GetTasks, Task } from "./types/tasks";
-import RemoveButton from "./componentns/RemoveButton";
-import { getTasks } from "./actions/taskActions";
-import UpdateButton from "./componentns/UpdateButton";
 import AddtaskForm from "./componentns/AddtaskForm";
-import Link from "next/link";
 import { Suspense } from "react";
-import Tloading from "./loading";
 import TaskList from "./componentns/TaskList";
 import Loading from "./loading";
 

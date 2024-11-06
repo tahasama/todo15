@@ -1,6 +1,6 @@
 import React from "react";
 import { getTaskById, getTasks } from "../actions/taskActions";
-import { GetTasks, Task } from "../types/tasks";
+import { GetTasks } from "../types/tasks";
 
 export async function generateStaticParams() {
   const tasks: GetTasks = await getTasks();
