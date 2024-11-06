@@ -1,12 +1,13 @@
 import { signIn } from "@/auth";
 
-export default function SignIn() {
+export default function GithubSignIn() {
   return (
     <form
       action={async () => {
         "use server";
         await signIn("github");
       }}
+      className="p-2"
     >
       <button
         type="submit"

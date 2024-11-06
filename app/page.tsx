@@ -2,14 +2,16 @@ import AddtaskForm from "./componentns/AddtaskForm";
 import { Suspense } from "react";
 import TaskList from "./componentns/TaskList";
 import Loading from "./loading";
-import SignIn from "./componentns/sign-in";
+import GithubSignIn from "./componentns/GithubsignIn";
+import { CredsSignIn } from "./componentns/CredsSignIn";
 
 export default function MainPage() {
   return (
     <div className="min-h-screen flex flex-col items-center bg-gray-100 text-gray-800">
       <header className="w-full py-4 bg-blue-600 text-white text-center shadow-md">
         <h1 className="text-2xl font-bold">To-Do App</h1>
-        <SignIn />
+        <GithubSignIn />
+        <CredsSignIn />
       </header>
       <main className="flex-grow w-full max-w-md mx-auto p-4 space-y-6">
         {/* Add Task Section */}
