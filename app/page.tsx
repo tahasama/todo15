@@ -4,6 +4,8 @@ import TaskList from "./componentns/TaskList";
 import Loading from "./loading";
 import GithubSignIn from "./componentns/GithubsignIn";
 import { CredsSignIn } from "./componentns/CredsSignIn";
+import { SignOut } from "./componentns/SignoutButton";
+import UserData from "./componentns/UserData";
 
 export default function MainPage() {
   return (
@@ -12,10 +14,11 @@ export default function MainPage() {
         <h1 className="text-2xl font-bold">To-Do App</h1>
         <GithubSignIn />
         <CredsSignIn />
+        <SignOut />
       </header>
       <main className="flex-grow w-full max-w-md mx-auto p-4 space-y-6">
         {/* Add Task Section */}
-
+        <UserData />
         <AddtaskForm />
 
         {/* Task List Section */}
