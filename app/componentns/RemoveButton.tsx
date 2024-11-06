@@ -13,14 +13,18 @@ const RemoveButton = ({ task }: { task: Task }) => {
 
   return (
     <div>
-      <button
-        onClick={handleRemoveTask}
-        className="text-red-500 text-md hover:text-red-700 focus:outline-none hover:bg-slate-300 p-1 rounded-sm"
-        aria-label={`Delete task: ${task.text}`}
-        disabled={ispending ? true : false}
-      >
-        {ispending ? "Loading" : "❌"}
-      </button>
+      <form action={handleRemoveTask}>
+        <input hidden type="text" name="id" defaultValue={task.id} />
+        <button
+          type="submit"
+          className="text-red-500 mt-1.5 hover:text-red-700 focus:outline-none"
+          aria-label={`Delete task: ${task.text}`}
+          disabled={ispending ? true : false}
+        >
+          {ispending ? "Deleting" : "❌"}
+        </button>
+      </form>
+
       <h2 className="text-md font-light text-red-500 text-center pt-2">
         {state?.message}
       </h2>
