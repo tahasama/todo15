@@ -10,6 +10,8 @@ import { signInSchema } from "./app/lib/zod";
 import { encode as defaultEncode } from "next-auth/jwt";
 import { Adapter } from "next-auth/adapters";
 
+import { v4 as uuidv4 } from "uuid";
+
 const adapterX: Adapter = PostgresAdapter(pool);
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
@@ -45,51 +47,48 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     }),
   ],
   callbacks: {
-    async jwt({ token, user }) {
-      // If the user is authenticated, add user data to the token
-      if (user) {
-        token.id = user.id;
-        token.email = user.email;
-        token.name = user.name;
+    async jwt({ token, user, account }) {
+      if (account?.provider === "credentials") {
+        token.credentials = true;
       }
       return token;
     },
-    async session({ session, token }: any) {
-      // Attach the token data to the session
-      if (token) {
-        session.user.id = token.id;
-        session.user.email = token.email;
-        session.user.name = token.name;
-      }
-      return session;
-    },
   },
+  // create session for creds auth
   jwt: {
-    encode: async function (params: any) {
-      console.log("🚀 ~ params:", params);
-      if (params.token) {
-        const sessionToken = "1234567890";
+    encode: async function (params) {
+      if (params.token?.credentials) {
+        const sessionToken = uuidv4();
 
         if (!params.token.sub) {
-          throw new Error("No use Id found in token");
+          throw new Error("No user ID found in token");
         }
-        if (adapterX?.createSession) {
-          const createdSession = await adapterX?.createSession({
-            sessionToken: sessionToken,
-            userId: params.token.id,
-            expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
-          });
 
-          if (!createdSession) {
-            throw new Error("Failed to create session");
-          }
+        const createdSession = await adapterX?.createSession?.({
+          sessionToken: sessionToken,
+          userId: params.token.sub,
+          expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days
+        });
+
+        if (!createdSession) {
+          throw new Error("Failed to create session");
         }
 
         return sessionToken;
       }
-
-      // return (params.token);
-      return defaultEncode(params.token);
+      return defaultEncode(params);
+    },
+  },
+  // persist session in cookies
+  cookies: {
+    sessionToken: {
+      name: "authsession",
+      options: {
+        httpOnly: true,
+        sameSite: "lax",
+        path: "/",
+        secure: false,
+      },
     },
   },
 

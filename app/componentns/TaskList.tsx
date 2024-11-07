@@ -36,6 +36,9 @@ const TaskList = async () => {
                 second: "2-digit",
               })}
             </span>
+            <span className="text-sm text-gray-600 mt-2 md:mt-0">
+              {task.name}
+            </span>
           </Link>
           <div className="flex space-x-2">
             <RemoveButton task={task} />

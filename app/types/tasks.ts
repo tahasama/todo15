@@ -5,6 +5,10 @@ export interface Task {
     created_at: Date;
   }
 
+  export interface TaskWithName extends Task {
+    name: string; // Add the `name` property for tasks that have the user's name
+  }
+
 
 export interface GetTaskByIdResponse {
     task?: Task; // Optional task property
@@ -12,6 +16,6 @@ export interface GetTaskByIdResponse {
   }
 
 export interface GetTasks {
-    tasks: Task[];
+    tasks: TaskWithName[];
     message: string;
   };

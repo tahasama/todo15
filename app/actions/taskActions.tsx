@@ -3,9 +3,22 @@
 import { revalidatePath } from "next/cache";
 import { query } from "../lib/db";
 import { GetTasks, Task } from "../types/tasks";
+import { auth } from "@/auth";
 
 export async function getTasks(): Promise<GetTasks> {
-  const result = await query("SELECT * FROM tasks ORDER BY created_at DESC");
+  const session = await auth();
+
+  if (!session?.user?.id) {
+    return {
+      message: "User is not authenticated.",
+      tasks: [],
+    };
+  }
+
+  const result = await query(
+    "SELECT tasks.*, users.name FROM tasks INNER JOIN users ON tasks.user_id = users.id WHERE tasks.user_id = $1 ORDER BY tasks.created_at DESC",
+    [session.user.id] // Fetch tasks only for the logged-in user
+  );
 
   if (!result) {
     return {
@@ -27,19 +40,33 @@ export const addTask = async (
   const newTask = formData.get("task") as string;
 
   if (newTask) {
-    const res = await query(
-      "INSERT INTO tasks (text, completed) VALUES ($1, $2)",
-      [newTask, false]
-    );
-    if (res.rowCount === 0) {
+    // Get the current user's session
+    const session = await auth();
+    if (!session?.user?.id) {
       return {
-        message: "failed to add you task please refresh or try again later",
+        message: "You must be logged in to add a task.",
       };
     }
-    revalidatePath("/");
-    // return { message: "task added successfully!" };
-    return { message: "" };
+
+    // Insert the task with the user_id
+    const res = await query(
+      "INSERT INTO tasks (text, completed, user_id) VALUES ($1, $2, $3)",
+      [newTask, false, session.user.id] // Adding the user_id from the session
+    );
+
+    if (res.rowCount === 0) {
+      return {
+        message: "Failed to add your task. Please try again later.",
+      };
+    }
+
+    revalidatePath("/"); // Trigger revalidation to reflect the change
+    return { message: "Task added successfully!" };
   }
+
+  return {
+    message: "Please provide a task description.",
+  };
 };
 
 export async function removeTask(
