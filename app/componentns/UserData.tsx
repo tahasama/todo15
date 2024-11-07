@@ -3,6 +3,8 @@ import { auth } from "@/auth";
 export default async function UserData() {
   const session = await auth();
 
+  console.log("🚀 ~ UserData ~ session:", session);
+
   if (!session?.user) return null;
 
   return (

@@ -7,6 +7,7 @@ import { CredsSignIn } from "./componentns/CredsSignIn";
 import { SignOut } from "./componentns/SignoutButton";
 import UserData from "./componentns/UserData";
 import { CredsSignUp } from "./componentns/CredsSignUp";
+import { auth } from "@/auth";
 
 export default function MainPage() {
   return (

@@ -4,32 +4,34 @@ import { query } from "../lib/db";
 import { revalidatePath } from "next/cache";
 import credentials from "next-auth/providers/credentials";
 import { signInSchema, signupSchema } from "../lib/zod";
-import { saltAndHashPassword } from "../utils/password";
 import { redirect } from "next/navigation";
+import crypto from "crypto";
+import { saltAndHashPassword } from "../utils/password";
 
-export const getUserFromDb = async (email: string, pwHash: string) => {
-  try {
-    // Query the database for the user
-    const res = await query("SELECT * FROM users WHERE email = $1", [email]);
+export const getUserFromDb = async (email: string, password: string) => {
+  // Query the database for the user by email
+  const res = await query("SELECT * FROM users WHERE email = $1", [email]);
 
-    if (res.rows.length === 0) {
-      return null; // User not found
-    }
+  if (res.rows.length === 0) {
+    return null; // User not found
+  }
 
-    const user = res.rows[0];
+  const user = res.rows[0];
 
-    // Separate the stored hash into salt and hash
-    const [storedSalt, storedHash] = pwHash.split(":");
+  // Split the stored salt and hash
+  const [storedSalt, storedHash] = user.passwordhash.split(":");
 
-    // Compare the hashed password with the stored hash
-    if (storedSalt === storedHash) {
-      return user; // Password matches, return the user
-    } else {
-      return null; // Password does not match
-    }
-  } catch (error) {
-    console.error("Error fetching user from database:", error);
-    throw new Error("Database query failed");
+  // Hash the provided password using the stored salt
+  const hash = crypto
+    .pbkdf2Sync(password, storedSalt, 1000, 64, "sha512")
+    .toString("hex");
+
+  // Compare the hashed password with the stored hash
+  if (hash === storedHash) {
+    console.log("🚀 ~ getUserFromDb ~ user:", user);
+    return user; // Password matches, return user object
+  } else {
+    return null; // Password does not match
   }
 };
 
@@ -47,10 +49,14 @@ export const addUser = async (
   if (existingUser.rows.length > 0) {
     return { message: "Email is already in use" };
   }
+
   if (name && email && password) {
-    // // logic to salt and hash password
-    const pwHash: any = saltAndHashPassword(password);
-    // Insert the new user
+    // Generate and store the hashed password and salt
+    const pwHash = saltAndHashPassword(password);
+    console.log("🚀 ~ pwHash:", pwHash);
+    console.log("🚀 ~ password:", password);
+
+    // Insert the new user into the database
     const res = await query(
       "INSERT INTO users (email, passwordhash, name) VALUES ($1, $2, $3) RETURNING *",
       [email, pwHash, name]
@@ -58,14 +64,13 @@ export const addUser = async (
 
     if (res.rowCount === 0) {
       return {
-        message: "failed to add you user please refresh or try again later",
+        message: "Failed to add user, please refresh or try again later",
       };
     }
-    redirect("/");
-    // return { message: "task added successfully!" };
-    return { message: "" };
-  }
-  return { message: "please fill all fields" };
-};
 
-// Extract and validate form data
+    redirect("/"); // Redirect to home page
+    return { message: "" }; // Success
+  }
+
+  return { message: "Please fill all fields" };
+};

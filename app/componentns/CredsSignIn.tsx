@@ -5,7 +5,8 @@ export function CredsSignIn() {
     <form
       action={async (formData) => {
         "use server";
-        await signIn("credentials", formData);
+        const ccc = await signIn("credentials", formData);
+        console.log("🚀 ~ action={ ~ cccxy:");
       }}
       className="p-2"
     >
