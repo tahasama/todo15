@@ -73,16 +73,18 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         if (!params.token.sub) {
           throw new Error("No use Id found in token");
         }
+        if (adapterX?.createSession) {
+          const createdSession = await adapterX?.createSession({
+            sessionToken: sessionToken,
+            userId: params.token.id,
+            expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+          });
 
-        const createdSession = await adapterX?.createSession({
-          sessionToken: sessionToken,
-          userId: params.token.id,
-          expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
-        });
-
-        if (!createdSession) {
-          throw new Error("Failed to create session");
+          if (!createdSession) {
+            throw new Error("Failed to create session");
+          }
         }
+
         return sessionToken;
       }
 
