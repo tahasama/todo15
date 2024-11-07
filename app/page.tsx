@@ -6,6 +6,7 @@ import GithubSignIn from "./componentns/GithubsignIn";
 import { CredsSignIn } from "./componentns/CredsSignIn";
 import { SignOut } from "./componentns/SignoutButton";
 import UserData from "./componentns/UserData";
+import { CredsSignUp } from "./componentns/CredsSignUp";
 
 export default function MainPage() {
   return (
@@ -15,6 +16,7 @@ export default function MainPage() {
         <GithubSignIn />
         <CredsSignIn />
         <SignOut />
+        <CredsSignUp />
       </header>
       <main className="flex-grow w-full max-w-md mx-auto p-4 space-y-6">
         {/* Add Task Section */}
