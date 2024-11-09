@@ -7,6 +7,7 @@ import { signInSchema, signupSchema } from "../lib/zod";
 import { redirect } from "next/navigation";
 import crypto from "crypto";
 import { saltAndHashPassword } from "../utils/password";
+import { signIn } from "@/auth";
 
 export const getUserFromDb = async (email: string, password: string) => {
   // Query the database for the user by email
@@ -74,3 +75,8 @@ export const addUser = async (
 
   return { message: "Please fill all fields" };
 };
+
+// export const login = async (prevState: any, formData: FormData) => {
+//   await signIn("credentials", { formData, redirectTo: "/" });
+//   return "wow";
+// };

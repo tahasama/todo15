@@ -11,12 +11,15 @@ import { encode as defaultEncode } from "next-auth/jwt";
 import { Adapter } from "next-auth/adapters";
 
 import { v4 as uuidv4 } from "uuid";
+import { redirect } from "next/navigation";
+import { NextResponse } from "next/server";
 
 const adapterX: Adapter = PostgresAdapter(pool);
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   adapter: adapterX,
   ...authConfig,
+
   providers: [
     GitHub,
     Credentials({
@@ -40,8 +43,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           throw new Error("Invalid credentials.");
         }
 
-        // return user object with their profile data
-        console.log("🚀 ~ authorize: ~ user000000000000:", user);
         return user;
       },
     }),
@@ -91,6 +92,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       },
     },
   },
-
+  pages: {
+    signIn: "/signin",
+  },
   // In session
 });

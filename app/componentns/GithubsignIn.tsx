@@ -5,7 +5,7 @@ export default function GithubSignIn() {
     <form
       action={async () => {
         "use server";
-        await signIn("github");
+        await signIn("github", { redirectTo: "/" });
       }}
       className="p-2"
     >
