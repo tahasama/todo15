@@ -51,11 +51,20 @@ export const addUser = async (
     return { message: "Email is already in use" };
   }
 
+  if (!email) {
+    return { message: "Please add email" };
+  }
+
+  if (!password) {
+    return { message: "Please add password" };
+  }
+  if (!name) {
+    return { message: "Please add name" };
+  }
+
   if (name && email && password) {
     // Generate and store the hashed password and salt
     const pwHash = saltAndHashPassword(password);
-    console.log("🚀 ~ pwHash:", pwHash);
-    console.log("🚀 ~ password:", password);
 
     // Insert the new user into the database
     const res = await query(
@@ -76,7 +85,21 @@ export const addUser = async (
   return { message: "Please fill all fields" };
 };
 
-// export const login = async (prevState: any, formData: FormData) => {
-//   await signIn("credentials", { formData, redirectTo: "/" });
-//   return "wow";
-// };
+export const login = async (prevState: any, formData: FormData) => {
+  const email = formData.get("email");
+  const password = formData.get("password");
+
+  if (!email) {
+    return { err: "Please add email" };
+  }
+
+  if (!password) {
+    return { err: "Please add password" };
+  }
+
+  try {
+    await signIn("credentials", formData);
+  } catch (error) {
+    return { err: "wrong email or password, please try again!" };
+  }
+};

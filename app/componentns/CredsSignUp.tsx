@@ -41,7 +41,7 @@ export function CredsSignUp() {
         Sign Up
       </button>
 
-      {/* {state.message && <p className="text-red-500 mt-2">{state.message}</p>} */}
+      {state.message && <p className="text-red-500 mt-2">{state.message}</p>}
     </form>
   );
 }

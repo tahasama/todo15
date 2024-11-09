@@ -1,36 +1,49 @@
-// "use client";
-import { signIn } from "@/auth";
+"use client";
+import { auth, signIn } from "@/auth";
+import { useRouter, useSearchParams } from "next/navigation";
+import { login } from "../actions/authActions";
+import { useActionState } from "react";
 // import { useActionState } from "react";
 // import { login } from "../actions/authActions";
 
 export function CredsSignIn() {
-  // const [state, action, pending] = useActionState(login, "");
+  const searchParams = useSearchParams();
+  const error = searchParams.get("error");
+  console.log("🚀 ~ CredsSignIn ~ router:", error);
+  const [state, action, pending] = useActionState(login, { err: "" });
+  console.log("🚀 ~ CredsSignIn ~ state:", state);
   // console.log("🚀 ~ CredsSignIn ~ state:", state);
   return (
-    <form
-      action={async (formData) => {
-        "use server";
-        await signIn("credentials", formData);
-      }}
-      className="p-2"
-    >
-      <input type="hidden" name="redirectTo" value="/" />
+    <>
+      <form
+        // action={async (formData) => {
+        //   "use server";
+        //   await signIn("credentials", formData);
+        // }}
+        action={action}
+        className="p-2"
+      >
+        <input type="hidden" name="redirectTo" value="/" />
 
-      <label className="mx-2">
-        Email
-        <input name="email" type="email" className="rounded-b-md p-1 m-1" />
-      </label>
-      <label className="mx-2">
-        Password
-        <input
-          name="password"
-          type="password"
-          className="rounded-b-md p-1 m-1"
-        />
-      </label>
-      <button className="bg-white text-blue-600 rounded-md py-1 px-2">
-        Sign In
-      </button>
-    </form>
+        <label className="mx-2">
+          Email
+          <input name="email" type="email" className="rounded-b-md p-1 m-1" />
+        </label>
+        <label className="mx-2">
+          Password
+          <input
+            name="password"
+            type="password"
+            className="rounded-b-md p-1 m-1"
+          />
+        </label>
+        <button className="bg-white text-blue-600 rounded-md py-1 px-2">
+          Sign In
+        </button>
+      </form>
+      <h2 className="text-md font-light text-red-500 text-center pt-2">
+        {state?.err}
+      </h2>
+    </>
   );
 }

@@ -101,6 +101,8 @@ testDatabaseConnection();
 // }
 // addUsersToTasks()
 
-
+// Clear database
+// DELETE FROM users;
+// DELETE FROM users WHERE name='gg';
 
 export const query = (text:string, params?:(string | number | boolean | null)[]) => pool.query(text, params);
