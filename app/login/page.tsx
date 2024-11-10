@@ -1,3 +1,5 @@
+"use client";
+
 import React from "react";
 import { CredsSignIn } from "../componentns/CredsSignIn";
 import GithubSignIn from "../componentns/GithubsignIn";
@@ -7,9 +9,9 @@ import { CredsSignUp } from "../componentns/CredsSignUp";
 const Login = () => {
   return (
     <div>
-      <GithubSignIn />
+      {/* <GithubSignIn /> */}
       <CredsSignIn />
-      <CredsSignUp />
+      {/* <CredsSignUp /> */}
     </div>
   );
 };

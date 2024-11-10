@@ -85,21 +85,22 @@ export const addUser = async (
   return { message: "Please fill all fields" };
 };
 
-export const login = async (prevState: any, formData: FormData) => {
-  const email = formData.get("email");
-  const password = formData.get("password");
+export const login = async (prevState: any, formData: any) => {
+  console.log("🚀 ~ login ~ formData:", formData);
+  // const email = formData.get("email");
+  // const password = formData.get("password");
 
-  if (!email) {
-    return { err: "Please add email" };
-  }
+  // if (!email) {
+  //   return { err: "Please add email" };
+  // }
 
-  if (!password) {
-    return { err: "Please add password" };
-  }
+  // if (!password) {
+  //   return { err: "Please add password" };
+  // }
 
-  try {
-    await signIn("credentials", formData);
-  } catch (error) {
-    return { err: "wrong email or password, please try again!" };
-  }
+  // try {
+  //   await signIn("credentials", formData);
+  // } catch (error) {
+  //   return { err: "wrong email or password, please try again!" };
+  // }
 };

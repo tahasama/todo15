@@ -1,18 +1,29 @@
-"use client";
+// "use client";
 import { auth, signIn } from "@/auth";
 import { useRouter, useSearchParams } from "next/navigation";
 import { login } from "../actions/authActions";
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 // import { useActionState } from "react";
 // import { login } from "../actions/authActions";
 
 export function CredsSignIn() {
-  const searchParams = useSearchParams();
-  const error = searchParams.get("error");
-  console.log("🚀 ~ CredsSignIn ~ router:", error);
-  const [state, action, pending] = useActionState(login, { err: "" });
-  console.log("🚀 ~ CredsSignIn ~ state:", state);
-  // console.log("🚀 ~ CredsSignIn ~ state:", state);
+  const router = useRouter();
+  const [error, setError] = useState("");
+
+  const onSubmit = async (e: any) => {
+    e.preventDefault(); // Prevent form's default behavior
+    console.log("🚀 ~ onSubmit ~ formData:", e.target.email.value);
+    await signIn(e.target.email.value, e.target.password.value);
+    // const result = await login(e.target.email.value, e.target.password.value)
+    console.log("🚀 ~ onSubmit ~ result:", result);
+    // if (result?.status === "success") {
+    //   router.push("/members");
+    //   router.refresh();
+    // } else {
+    //   setError(result?.error as string);
+    //   console.error(result?.error);
+  };
+
   return (
     <>
       <form
@@ -20,7 +31,7 @@ export function CredsSignIn() {
         //   "use server";
         //   await signIn("credentials", formData);
         // }}
-        action={action}
+        onSubmit={onSubmit}
         className="p-2"
       >
         <input type="hidden" name="redirectTo" value="/" />
@@ -42,7 +53,7 @@ export function CredsSignIn() {
         </button>
       </form>
       <h2 className="text-md font-light text-red-500 text-center pt-2">
-        {state?.err}
+        {error}
       </h2>
     </>
   );
