@@ -177,10 +177,6 @@ export const loginWithCredentials = async ({
   });
 
   if (!loginValidation.success) {
-    console.log(
-      "🚀 ~ loginValidation.error.issues[0]?.message:",
-      loginValidation.error.issues[0]?.message
-    );
     return {
       error: true,
       message: loginValidation.error.issues[0]?.message ?? "An error occurred",
@@ -193,11 +189,7 @@ export const loginWithCredentials = async ({
     psswrd,
     redirect: false,
   });
-
-  console.log("🚀 ~ xxx10:", xxx);
-
   // } catch (error) {
-  //   console.log("🚀 ~ error:");
   //   return {
   //     error: true,
   //     message: "Incorrect email or psswrd",

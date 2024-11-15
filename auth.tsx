@@ -49,6 +49,12 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         const { email, psswrd } = await signInSchema.parseAsync(credentials);
         const user = await getUserFromDb(email, psswrd);
         console.log("🚀 ~ authorize ~ user:", user);
+        if (user === null) {
+          return {
+            error: true,
+            message: "Incorrect email or psswrd",
+          };
+        }
         return user;
       },
     }),

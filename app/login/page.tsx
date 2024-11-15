@@ -26,6 +26,7 @@ import { loginWithCredentials } from "../actions/authActions";
 import { Input } from "@/components/ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
+import { auth } from "@/auth";
 
 const formSchema = z.object({
   email: z.string().email(),
@@ -45,18 +46,27 @@ function LoginPage() {
 
   const handleSubmit = async (data: z.infer<typeof formSchema>) => {
     const { email, psswrd } = data;
-    const response = await loginWithCredentials({
-      email,
-      psswrd,
-    });
-    console.log("🚀 ~ handleSubmit ~ response:", response);
-
-    if (response?.error) {
-      form.setError("root", {
-        message: response.message,
+    try {
+      const response = await loginWithCredentials({
+        email,
+        psswrd,
       });
-    } else {
-      router.push("/");
+      console.log("🚀 ~ handleSubmit ~ responsed:", response);
+      if (!response) {
+        form.setError("root", {
+          message: "user not found, email or username invalid",
+        });
+      }
+      if (response?.error) {
+        form.setError("root", {
+          message: response.message,
+        });
+      }
+      // else {
+      //   router.push("/");
+      // }
+    } catch (error) {
+      console.log("🚀 ~ handleSubmit ~ error:", error);
     }
   };
 
