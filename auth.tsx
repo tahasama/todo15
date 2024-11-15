@@ -1,99 +1,56 @@
 import NextAuth from "next-auth";
-import authConfig from "./auth.config";
-import PostgresAdapter from "@auth/pg-adapter";
-import { pool } from "./app/lib/db";
 import Credentials from "next-auth/providers/credentials";
+// import { pool, query } from "./lib/db";
+import { signInSchema } from "./lib/zod";
+// import { Adapter } from "next-auth/adapters";
+// import PostgresAdapter from "@auth/pg-adapter";
+import authConfig from "./auth.config";
 import GitHub from "next-auth/providers/github";
 import { getUserFromDb } from "./app/actions/authActions";
-import { signInSchema } from "./app/lib/zod";
+import { query } from "./lib/db";
 
-import { encode as defaultEncode } from "next-auth/jwt";
-import { Adapter } from "next-auth/adapters";
-
-import { v4 as uuidv4 } from "uuid";
-import { redirect } from "next/navigation";
-import { NextResponse } from "next/server";
-
-const adapterX: Adapter = PostgresAdapter(pool);
+// const adapterX: Adapter = PostgresAdapter(pool);
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
-  adapter: adapterX,
+  // adapter: adapterX,
   ...authConfig,
+  // callbacks: {
+  //   jwt({ token, user }) {
+  //     if (user) {
+  //       token.id = user.id;
+  //     }
+  //     return token;
+  //   },
+  //   async session({ session, token }) {
+  //     session.user.id = token.id as string;
+  //     // Check if the user exists
+  //     const existingUser = await query("SELECT * FROM users WHERE email = $1", [
+  //       session.user.email,
+  //     ]);
 
+  //     // Add user to database if not exists
+  //     if (existingUser.rows.length === 0) {
+  //       await query("INSERT INTO users (email, psswrdhash) VALUES ($1, $2)", [
+  //         session.user.email,
+  //         "",
+  //       ]);
+  //     }
+  //     return session;
+  //   },
+  // },
   providers: [
     GitHub,
     Credentials({
-      // You can specify which fields should be submitted, by adding keys to the `credentials` object.
-      // e.g. domain, username, password, 2FA token, etc.
       credentials: {
         email: {},
-        password: {},
+        psswrd: {},
       },
-      authorize: async (credentials) => {
-        let user: any = null;
-
-        const { email, password } = await signInSchema.parseAsync(credentials);
-
-        // logic to verify if the user exists
-        user = await getUserFromDb(email, password);
-
-        if (!user) {
-          // No user found, so this is their first attempt to login
-          // Optionally, this is also the place you could do a user registration
-          throw new Error("Invalid credentials.");
-        }
-
+      async authorize(credentials: any) {
+        const { email, psswrd } = await signInSchema.parseAsync(credentials);
+        const user = await getUserFromDb(email, psswrd);
+        console.log("🚀 ~ authorize ~ user:", user);
         return user;
       },
     }),
   ],
-  callbacks: {
-    async jwt({ token, user, account }) {
-      if (account?.provider === "credentials") {
-        token.credentials = true;
-      }
-      return token;
-    },
-  },
-  // create session for creds auth
-  jwt: {
-    encode: async function (params) {
-      if (params.token?.credentials) {
-        const sessionToken = uuidv4();
-
-        if (!params.token.sub) {
-          throw new Error("No user ID found in token");
-        }
-
-        const createdSession = await adapterX?.createSession?.({
-          sessionToken: sessionToken,
-          userId: params.token.sub,
-          expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days
-        });
-
-        if (!createdSession) {
-          throw new Error("Failed to create session");
-        }
-
-        return sessionToken;
-      }
-      return defaultEncode(params);
-    },
-  },
-  // persist session in cookies
-  cookies: {
-    sessionToken: {
-      name: "authsession",
-      options: {
-        httpOnly: true,
-        sameSite: "lax",
-        path: "/",
-        secure: false,
-      },
-    },
-  },
-  pages: {
-    signIn: "/signin",
-  },
-  // In session
 });

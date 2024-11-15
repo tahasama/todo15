@@ -1,14 +1,15 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { query } from "../lib/db";
+import { query } from "../../lib/db";
 import { GetTasks, Task } from "../types/tasks";
 import { auth } from "@/auth";
 
 export async function getTasks(): Promise<GetTasks> {
   const session = await auth();
+  console.log("🚀 ~ getTasks ~ session:", session);
 
-  if (!session?.user?.id) {
+  if (!session?.user?.email) {
     return {
       message: "User is not authenticated.",
       tasks: [],
@@ -16,8 +17,9 @@ export async function getTasks(): Promise<GetTasks> {
   }
 
   const result = await query(
-    "SELECT tasks.*, users.name FROM tasks INNER JOIN users ON tasks.user_id = users.id WHERE tasks.user_id = $1 ORDER BY tasks.created_at DESC",
-    [session.user.id] // Fetch tasks only for the logged-in user
+    "SELECT tasks.*, users.email FROM tasks INNER JOIN users ON tasks.user_email = users.email WHERE tasks.user_email = $1 ORDER BY tasks.created_at DESC",
+    [session?.user?.email] // Fetch tasks only for the logged-in user
+    // "SELECT *FROM tasks  ORDER BY tasks.created_at DESC"
   );
 
   if (!result) {
@@ -42,7 +44,8 @@ export const addTask = async (
   if (newTask) {
     // Get the current user's session
     const session = await auth();
-    if (!session?.user?.id) {
+    console.log("🚀 ~ session:", session);
+    if (!session?.user?.email) {
       return {
         message: "You must be logged in to add a task.",
       };
@@ -50,8 +53,8 @@ export const addTask = async (
 
     // Insert the task with the user_id
     const res = await query(
-      "INSERT INTO tasks (text, completed, user_id) VALUES ($1, $2, $3)",
-      [newTask, false, session.user.id] // Adding the user_id from the session
+      "INSERT INTO tasks (text, completed, user_email) VALUES ($1, $2, $3)",
+      [newTask, false, session.user.email] // Adding the user_id from the session
     );
 
     if (res.rowCount === 0) {

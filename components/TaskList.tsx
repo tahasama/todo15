@@ -1,12 +1,44 @@
 import Link from "next/link";
 import React from "react";
-import { GetTasks } from "../types/tasks";
+import { GetTasks } from "../app/types/tasks";
 import RemoveButton from "./RemoveButton";
 import UpdateButton from "./UpdateButton";
-import { getTasks } from "../actions/taskActions";
+import { query } from "../lib/db";
+import { getTasks } from "@/app/actions/taskActions";
+
+export async function getUsers() {
+  // const session = await auth();
+
+  // if (!session?.user?.id) {
+  //   return {
+  //     message: "User is not authenticated.",
+  //     tasks: [],
+  //   };
+  // }
+
+  const result = await query(
+    // "SELECT tasks.*, users.name FROM tasks INNER JOIN users ON tasks.user_id = users.id WHERE tasks.user_id = $1 ORDER BY tasks.created_at DESC"
+    // [session.user.id] // Fetch tasks only for the logged-in user
+    "SELECT *FROM users ORDER BY tasks.created_at DESC"
+  );
+  console.log("🚀 ~ getUsers ~ result:", result);
+
+  if (!result) {
+    return {
+      message: "Failed to fetch users",
+      users: [],
+    };
+  }
+
+  return {
+    users: result.rows,
+    message: "",
+  };
+}
 
 const TaskList = async () => {
   const tasks: GetTasks = await getTasks(); // This function will be called in the server environment
+  console.log("🚀 ~ TaskList ~ tasks:", tasks);
 
   return (
     <ul className="space-y-4">

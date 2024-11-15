@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
-import { addTask } from "../actions/taskActions";
+import { addTask } from "../app/actions/taskActions";
 
 const AddtaskForm = () => {
   const [state, handleAddTask, ispending] = useActionState(addTask, {

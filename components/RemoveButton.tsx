@@ -1,7 +1,7 @@
 "use client";
 import React, { useActionState } from "react";
-import { Task } from "../types/tasks";
-import { removeTask } from "../actions/taskActions";
+import { Task } from "../app/types/tasks";
+import { removeTask } from "../app/actions/taskActions";
 
 const RemoveButton = ({ task }: { task: Task }) => {
   const [state, handleRemoveTask, ispending] = useActionState(removeTask, {

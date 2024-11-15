@@ -1,7 +1,7 @@
 "use client";
 import React, { useActionState, useEffect, useState } from "react";
-import { Task } from "../types/tasks";
-import { updateTask } from "../actions/taskActions";
+import { Task } from "../app/types/tasks";
+import { updateTask } from "../app/actions/taskActions";
 
 const UpdateButton = ({ task }: { task: Task }) => {
   const [isEditing, setIsEditing] = useState<boolean>(false);

@@ -1,15 +1,211 @@
 "use server";
 
-import { query } from "../lib/db";
-import { revalidatePath } from "next/cache";
-import credentials from "next-auth/providers/credentials";
-import { signInSchema, signupSchema } from "../lib/zod";
-import { redirect } from "next/navigation";
-import crypto from "crypto";
-import { saltAndHashPassword } from "../utils/password";
 import { signIn } from "@/auth";
+import { formSchema } from "@/lib/zod";
+import { z } from "zod";
+import crypto from "crypto";
+import { query } from "@/lib/db";
+import { redirect } from "next/navigation";
+import { saltAndHashPassword } from "../utils/password";
+// "use server";
 
-export const getUserFromDb = async (email: string, password: string) => {
+// import { query } from "@/lib/db";
+// import { redirect } from "next/navigation";
+// import { saltAndHashpsswrd } from "@/lib/utils";
+// import { formSchema, signInSchema } from "@/lib/zod";
+// import crypto from "crypto";
+
+// // Function to salt and hash psswrd
+
+export const addUser = async ({
+  email,
+  psswrd,
+  confirmPsswrd,
+}: {
+  email: string;
+  psswrd: string;
+  confirmPsswrd: string;
+}) => {
+  // Server-side validation using zod
+  const parseResult = await formSchema.safeParseAsync({
+    email,
+    psswrd,
+    confirmPsswrd,
+  });
+
+  if (!parseResult.success) {
+    // return { error: "Validation failed. Please check your inputs." };
+    return { error: true, message: parseResult.error.issues[0].message };
+  }
+
+  // Validate the email uniqueness first
+
+  const existingUser = await query("SELECT * FROM users WHERE email = $1", [
+    email,
+  ]);
+
+  if (existingUser.rows.length > 0) {
+    return { error: true, message: "This email is already registered." };
+  }
+
+  // Generate the psswrd hash
+  const pwHash = saltAndHashPassword(psswrd);
+
+  // Insert the new user into the database
+
+  const result = await query(
+    "INSERT INTO users (email, psswrdhash) VALUES ($1, $2) RETURNING *",
+    [email, pwHash]
+  );
+
+  if (result.rowCount === 0) {
+    return {
+      error: true,
+      message: "Failed to add user. Please try again later.",
+    };
+  }
+  redirect("/"); // Redirect to home page on success
+  return { success: true };
+};
+
+export const loginWithGitHub = async () => {
+  console.log("🚀 ~ loginWithGitHub ~ async:");
+  const ccc = await signIn("github");
+  console.log("🚀 ~ loginWithGitHub ~ ccc:", ccc);
+
+  // const existingUser = await query("SELECT * FROM users WHERE email = $1", [
+  //   email,
+  // ]);
+  // if (existingUser.rows.length > 0) {
+  //   return { error: true, message: "This email is already registered." };
+  // }
+};
+
+export async function getUsers() {
+  const result = await query("SELECT *FROM users");
+
+  if (!result) {
+    return {
+      message: "Failed to fetch users",
+      users: [],
+    };
+  }
+
+  return {
+    users: result.rows,
+    message: "",
+  };
+}
+
+// export const getUserFromDb = async (email: string, psswrd: string) => {
+//   // Query the database for the user by email
+
+//   const parseResult = await signInSchema.safeParseAsync({
+//     email,
+//     psswrd,
+//   });
+
+//   if (!parseResult.success) {
+//     // return { error: "Validation failed. Please check your inputs." };
+//     return { error: true, message: parseResult.error.issues[0].message };
+//   }
+//   const res = await query("SELECT * FROM users WHERE email = $1", [email]);
+
+//   if (res.rows.length === 0) {
+//     return {
+//       error: true,
+//       message: "User not found",
+//     }; // User not found
+//   }
+
+//   const user = res.rows[0];
+
+//   // Split the stored salt and hash
+//   const [storedSalt, storedHash] = user.psswrdhash.split(":");
+
+//   // Hash the provided psswrd using the stored salt
+//   const hash = crypto
+//     .pbkdf2Sync(psswrd, storedSalt, 1000, 64, "sha512")
+//     .toString("hex");
+
+//   // Compare the hashed psswrd with the stored hash
+//   if (hash === storedHash) {
+//     console.log("🚀 ~ getUserFromDb ~ user:", user);
+//     return { error: false, message: "", user }; // psswrd matches, return user object
+//   } else {
+//     return {
+//       error: true,
+//       message: "wrong psswrd",
+//     }; // psswrd does not match
+//   }
+// };
+
+// // export const credsLogin = async ({
+// //   email,
+// //   psswrd,
+// // }: {
+// //   email: string;
+// //   psswrd: string;
+// // }) => {
+// //   const parseResult = await signInSchema.safeParseAsync({
+// //     email,
+// //     psswrd,
+// //   });
+
+// //   if (!parseResult.success) {
+// //     // return { error: "Validation failed. Please check your inputs." };
+// //     return { error: true, message: parseResult.error.issues[0].message };
+// //   }
+
+// // };
+
+export const loginWithCredentials = async ({
+  email,
+  psswrd,
+}: {
+  email: string;
+  psswrd: string;
+}) => {
+  const loginSchema = z.object({
+    email: z.string().email(),
+    psswrd: z.string().min(5, "psswrd must contain at least 5 characters"),
+  });
+
+  const loginValidation = loginSchema.safeParse({
+    email,
+    psswrd,
+  });
+
+  if (!loginValidation.success) {
+    console.log(
+      "🚀 ~ loginValidation.error.issues[0]?.message:",
+      loginValidation.error.issues[0]?.message
+    );
+    return {
+      error: true,
+      message: loginValidation.error.issues[0]?.message ?? "An error occurred",
+    };
+  }
+
+  // try {
+  const xxx = await signIn("credentials", {
+    email,
+    psswrd,
+    redirect: false,
+  });
+
+  console.log("🚀 ~ xxx10:", xxx);
+
+  // } catch (error) {
+  //   console.log("🚀 ~ error:");
+  //   return {
+  //     error: true,
+  //     message: "Incorrect email or psswrd",
+  //   };
+  // }
+};
+
+export const getUserFromDb = async (email: string, psswrd: string) => {
   // Query the database for the user by email
   const res = await query("SELECT * FROM users WHERE email = $1", [email]);
 
@@ -18,89 +214,21 @@ export const getUserFromDb = async (email: string, password: string) => {
   }
 
   const user = res.rows[0];
+  console.log("🚀 ~ getUserFromDb ~ user:", user);
 
   // Split the stored salt and hash
-  const [storedSalt, storedHash] = user.passwordhash.split(":");
+  const [storedSalt, storedHash] = user.psswrdhash.split(":");
 
-  // Hash the provided password using the stored salt
+  // Hash the provided psswrd using the stored salt
   const hash = crypto
-    .pbkdf2Sync(password, storedSalt, 1000, 64, "sha512")
+    .pbkdf2Sync(psswrd, storedSalt, 1000, 64, "sha512")
     .toString("hex");
 
-  // Compare the hashed password with the stored hash
+  // Compare the hashed psswrd with the stored hash
   if (hash === storedHash) {
     console.log("🚀 ~ getUserFromDb ~ user:", user);
-    return user; // Password matches, return user object
+    return user; // psswrd matches, return user object
   } else {
-    return null; // Password does not match
+    return null; // psswrd does not match
   }
-};
-
-export const addUser = async (
-  prevState: { message: string } | undefined,
-  formData: FormData
-) => {
-  const data = Object.fromEntries(formData);
-  const { email, password, name } = await signupSchema.parseAsync(data);
-
-  // Check if email is already in use
-  const existingUser = await query("SELECT * FROM users WHERE email = $1", [
-    email,
-  ]);
-  if (existingUser.rows.length > 0) {
-    return { message: "Email is already in use" };
-  }
-
-  if (!email) {
-    return { message: "Please add email" };
-  }
-
-  if (!password) {
-    return { message: "Please add password" };
-  }
-  if (!name) {
-    return { message: "Please add name" };
-  }
-
-  if (name && email && password) {
-    // Generate and store the hashed password and salt
-    const pwHash = saltAndHashPassword(password);
-
-    // Insert the new user into the database
-    const res = await query(
-      "INSERT INTO users (email, passwordhash, name) VALUES ($1, $2, $3) RETURNING *",
-      [email, pwHash, name]
-    );
-
-    if (res.rowCount === 0) {
-      return {
-        message: "Failed to add user, please refresh or try again later",
-      };
-    }
-
-    redirect("/"); // Redirect to home page
-    return { message: "" }; // Success
-  }
-
-  return { message: "Please fill all fields" };
-};
-
-export const login = async (prevState: any, formData: any) => {
-  console.log("🚀 ~ login ~ formData:", formData);
-  // const email = formData.get("email");
-  // const password = formData.get("password");
-
-  // if (!email) {
-  //   return { err: "Please add email" };
-  // }
-
-  // if (!password) {
-  //   return { err: "Please add password" };
-  // }
-
-  // try {
-  //   await signIn("credentials", formData);
-  // } catch (error) {
-  //   return { err: "wrong email or password, please try again!" };
-  // }
 };
