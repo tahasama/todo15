@@ -1,7 +1,6 @@
 "use client";
 
 import { z } from "zod";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
@@ -26,7 +25,6 @@ import { loginWithCredentials } from "../actions/authActions";
 import { Input } from "@/components/ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { auth } from "@/auth";
 
 const formSchema = z.object({
   email: z.string().email(),
@@ -34,8 +32,6 @@ const formSchema = z.object({
 });
 
 function LoginPage() {
-  const router = useRouter();
-
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {

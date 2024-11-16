@@ -1,6 +1,5 @@
 import AddtaskForm from "@/components/AddtaskForm";
 import TaskList from "@/components/TaskList";
-import UserData from "@/components/UserData";
 import { Suspense } from "react";
 import Loading from "./loading";
 
@@ -20,7 +19,6 @@ export default function MainPage() {
           {/* <h2 className="text-md font-light text-red-500 text-center pt-2">
             {tasks?.message}
           </h2> */}
-          <UserData />
           <Suspense fallback={<Loading />}>
             <TaskList />
           </Suspense>

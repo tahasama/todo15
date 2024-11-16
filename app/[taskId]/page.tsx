@@ -1,13 +1,12 @@
 import React from "react";
-import { getTaskById, getTasks } from "../actions/taskActions";
-import { GetTasks } from "../types/tasks";
+import { getTaskById } from "../actions/taskActions";
 
-export async function generateStaticParams() {
-  const tasks: GetTasks = await getTasks();
-  return tasks.tasks?.map((task) => ({
-    taskId: String(task.id),
-  }));
-}
+// export async function generateStaticParams() {
+//   const tasks: GetTasks = await getTasks();
+//   return tasks.tasks?.map((task) => ({
+//     taskId: String(task.id),
+//   }));
+// }
 
 type Params = Promise<{ taskId: string }>;
 

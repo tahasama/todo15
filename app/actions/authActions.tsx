@@ -184,7 +184,7 @@ export const loginWithCredentials = async ({
   }
 
   // try {
-  const xxx = await signIn("credentials", {
+  await signIn("credentials", {
     email,
     psswrd,
     redirect: false,

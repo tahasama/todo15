@@ -1,5 +1,4 @@
 import { loginWithGitHub } from "@/app/actions/authActions";
-import { signIn } from "@/auth";
 
 export default function GithubSignIn() {
   return (
